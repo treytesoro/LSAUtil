@@ -1,0 +1,6 @@
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\bin\Debug\LSAutil.dll
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\bin\Debug\LSAutil.pdb
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\obj\Debug\LSAutil.csproj.AssemblyReference.cache
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\obj\Debug\LSAutil.csproj.CoreCompileInputs.cache
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\obj\Debug\LSAutil.dll
+C:\Users\tgtesoro\source\repos\LSAutil\LSAutil\obj\Debug\LSAutil.pdb

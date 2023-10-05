@@ -1,0 +1,9 @@
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\bin\Release\lsatest.exe
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\bin\Release\lsatest.pdb
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\bin\Release\LSAutil.dll
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\bin\Release\LSAutil.pdb
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\obj\Release\lsatest.csproj.AssemblyReference.cache
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\obj\Release\lsatest.csproj.CoreCompileInputs.cache
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\obj\Release\lsatest.csproj.CopyComplete
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\obj\Release\lsatest.exe
+C:\Users\tgtesoro\source\repos\LSAutil\lsatest\obj\Release\lsatest.pdb
