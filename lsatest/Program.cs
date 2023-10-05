@@ -10,7 +10,14 @@ namespace lsatest
     {
         static void Main(string[] args)
         {
+            // Create an LSAtool object targeting DefaultPassword
             LSAtool lt = new LSAtool("DefaultPassword");
+
+            // Setting the secret
+            lt.SetSecret("Some_secret_password");
+
+            // Getting the secret
+            String secret = lt.GetSecret();
         }
     }
 }
