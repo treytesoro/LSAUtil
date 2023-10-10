@@ -114,8 +114,19 @@ namespace LSAutil
             ReleaseLsaPolicy(lsaPolicy);
             uint winError = LsaNtStatusToWinError(status);
             if (winError != 0U)
+            {
+                if (value.Length > 0)
+                {
+                    Marshal.FreeHGlobal(PrivateData.Buffer);
+                }
                 throw new Exception("StorePrivateData failed: " + (object)winError);
+            }
             Console.WriteLine("Set secret password sucessful.");
+
+            if(value.Length > 0)
+            {
+                Marshal.FreeHGlobal(PrivateData.Buffer);
+            }
         }
 
         public string GetSecret()
