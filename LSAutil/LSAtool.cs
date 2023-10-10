@@ -27,8 +27,21 @@ namespace LSAutil
           ref LSA_UNICODE_STRING PrivateData);
 
         [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern uint LsaStorePrivateData(
+          IntPtr policyHandle,
+          ref LSA_UNICODE_STRING KeyName,
+          IntPtr PrivateData);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
         private static extern uint LsaOpenPolicy(
           ref LSA_UNICODE_STRING SystemName,
+          ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
+          uint DesiredAccess,
+          out IntPtr PolicyHandle);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern uint LsaOpenPolicy(
+          IntPtr SystemName,
           ref LSA_OBJECT_ATTRIBUTES ObjectAttributes,
           uint DesiredAccess,
           out IntPtr PolicyHandle);
@@ -53,27 +66,36 @@ namespace LSAutil
         public LSAtool(string key)
         {
             if (key.Length == 0)
-                throw new Exception("Key lenght zero");
+                throw new Exception("Key length zero");
+
             this.objectAttributes = new LSA_OBJECT_ATTRIBUTES();
             this.objectAttributes.Length = 0;
             this.objectAttributes.RootDirectory = IntPtr.Zero;
             this.objectAttributes.Attributes = 0U;
             this.objectAttributes.SecurityDescriptor = IntPtr.Zero;
             this.objectAttributes.SecurityQualityOfService = IntPtr.Zero;
+
             this.localsystem = new LSA_UNICODE_STRING();
             this.localsystem.Buffer = IntPtr.Zero;
             this.localsystem.Length = (ushort)0;
             this.localsystem.MaximumLength = (ushort)0;
+
             this.secretName = new LSA_UNICODE_STRING();
             this.secretName.Buffer = Marshal.StringToHGlobalUni(key);
             this.secretName.Length = (ushort)(key.Length * 2);
             this.secretName.MaximumLength = (ushort)((key.Length + 1) * 2);
         }
 
+        /// <summary>
+        /// Gets an LSA policy handle. Throws exception on failure.
+        /// </summary>
+        /// <param name="access"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         private IntPtr GetLsaPolicy(LSA_AccessPolicy access)
         {
             IntPtr PolicyHandle;
-            uint winError = LsaNtStatusToWinError(LsaOpenPolicy(ref this.localsystem, ref this.objectAttributes, (uint)access, out PolicyHandle));
+            uint winError = LsaNtStatusToWinError(LsaOpenPolicy(IntPtr.Zero, ref this.objectAttributes, (uint)access, out PolicyHandle));
             if (winError != 0U)
                 throw new Exception("LsaOpenPolicy failed: " + (object)winError);
             return PolicyHandle;
@@ -93,10 +115,10 @@ namespace LSAutil
                 throw new Exception("LsaFreeMemory failed: " + (object)winError);
         }
 
-        public void SetSecret(string value)
+        public Boolean SetSecret(string value)
         {
             LSA_UNICODE_STRING PrivateData = new LSA_UNICODE_STRING();
-            Console.WriteLine("pass length = {0}", (object)value.Length);
+            //Console.WriteLine("pass length = {0}", (object)value.Length);
             if (value.Length > 0)
             {
                 PrivateData.Buffer = Marshal.StringToHGlobalUni(value);
@@ -119,16 +141,24 @@ namespace LSAutil
                 {
                     Marshal.FreeHGlobal(PrivateData.Buffer);
                 }
-                throw new Exception("StorePrivateData failed: " + (object)winError);
+                //throw new Exception("StorePrivateData failed: " + (object)winError);
+                return false;
             }
-            Console.WriteLine("Set secret password sucessful.");
+            //Console.WriteLine("Set secret password sucessful.");
 
             if(value.Length > 0)
             {
                 Marshal.FreeHGlobal(PrivateData.Buffer);
             }
+
+            return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public string GetSecret()
         {
             IntPtr PrivateData = IntPtr.Zero;
@@ -137,11 +167,39 @@ namespace LSAutil
             ReleaseLsaPolicy(lsaPolicy);
             uint winError = LsaNtStatusToWinError(status);
             if (winError != 0U)
-                throw new Exception("RetreivePrivateData failed: " + (object)winError);
+            {
+                throw new SecretNotExistException("RetreivePrivateData failed: " + (object)winError);
+            }
             LSA_UNICODE_STRING structure = (LSA_UNICODE_STRING)Marshal.PtrToStructure(PrivateData, typeof(LSA_UNICODE_STRING));
             string secret = Marshal.PtrToStringAuto(structure.Buffer).Substring(0, (int)structure.Length / 2);
             FreeMemory(PrivateData);
             return secret;
+        }
+
+        public Boolean DeleteSecret()
+        {
+            //LSA_UNICODE_STRING PrivateData = null;
+            try
+            {
+                IntPtr lsaPolicy = this.GetLsaPolicy(LSA_AccessPolicy.POLICY_CREATE_SECRET);
+                uint status = LsaStorePrivateData(lsaPolicy, ref this.secretName, IntPtr.Zero);
+                ReleaseLsaPolicy(lsaPolicy);
+                uint winError = LsaNtStatusToWinError(status);
+                if (winError != 0U)
+                {
+                    //Console.WriteLine("Error deleting secret. Error code {0}", winError);
+                    return false;
+                }
+            }
+            catch(Exception exc)
+            {
+                // pass
+            }
+
+            Console.WriteLine("Secret deleted successfully");
+
+
+            return true;
         }
 
         private struct LSA_UNICODE_STRING
@@ -208,6 +266,22 @@ namespace LSAutil
             GC.SuppressFinalize(this);
         }
     }
+
+    public class SecretNotExistException : Exception {
+        public SecretNotExistException()
+        {
+            
+        }
+        public SecretNotExistException(String message):base(message)
+        {
+
+        }
+        public SecretNotExistException(String message, Exception inner) : base(message, inner)
+        {
+
+        }
+    }
+
 }
 
 

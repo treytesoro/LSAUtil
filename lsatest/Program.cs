@@ -11,13 +11,36 @@ namespace lsatest
         static void Main(string[] args)
         {
             // Create an LSAtool object targeting DefaultPassword
-            LSAtool lt = new LSAtool("DefaultPassword");
+            using (LSAtool lt = new LSAtool("IDONTEXIST"))
+            {
 
-            // Setting the secret
-            lt.SetSecret("Some_secret_password");
+                // Setting the secret
+                // Console.WriteLine("Setting secret");
+                //if (!lt.SetSecret("test")) {
+                //    Console.WriteLine("Error setting secret");
+                //}
 
-            // Getting the secret
-            String secret = lt.GetSecret();
+                // Getting the secret
+                Console.WriteLine("Getting secret");
+                try
+                {
+                    String secret = lt.GetSecret();
+                    Console.WriteLine(secret);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Could not get the requested secret.");
+                }
+
+                Console.WriteLine("Press any key to delete secret and exit");
+                Console.Read();
+
+                if (!lt.DeleteSecret())
+                {
+                    Console.WriteLine("Error deleting secret");
+                }
+
+            }
         }
     }
 }
