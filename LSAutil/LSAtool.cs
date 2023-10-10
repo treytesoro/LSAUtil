@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LSAutil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -6,11 +7,12 @@ using System.Text;
 
 namespace LSAutil
 {
-    public class LSAtool
+    public class LSAtool: IDisposable
     {
         private LSA_OBJECT_ATTRIBUTES objectAttributes;
         private LSA_UNICODE_STRING localsystem;
         private LSA_UNICODE_STRING secretName;
+        private bool disposedValue;
 
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern uint LsaRetrievePrivateData(
@@ -164,5 +166,37 @@ namespace LSAutil
             POLICY_LOOKUP_NAMES = 2048, // 0x0000000000000800
             POLICY_NOTIFICATION = 4096, // 0x0000000000001000
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                Marshal.FreeHGlobal(secretName.Buffer);
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~LSAtool()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
+
+
